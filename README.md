@@ -1,4 +1,4 @@
-A student JavaScript assignment focused on use of Local Storage, Class inheritance, import/export of functions, and refactoring AI Agent code. Assignment prompt 
+A student JavaScript assignment focused on use of Local Storage, Class inheritance, import/export of functions, and refactoring AI Agent code. Assignment prompt follows.
 
 Assignment prompt: 
 
