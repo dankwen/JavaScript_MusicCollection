@@ -1,0 +1,14 @@
+.table-hover tbody tr {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.badge {
+    font-weight: 500;
+}
+
+/* Strikethrough effect for ripped CDs if you want that TODO look */
+tr:has(input[type="checkbox"]:checked) .fw-bold {
+    color: var(--bs-secondary);
+    text-decoration: line-through;
+}
