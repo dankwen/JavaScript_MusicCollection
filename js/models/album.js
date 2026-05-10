@@ -1,11 +1,17 @@
+
+export let albumId = 0;
+
+export function setAlbumId(id) {
+    albumId = id;
+}
+
 export class Album {
-    constructor(title, artist, runtime, coverUrl) {
-        this.id = Date.now() + Math.random();
+    constructor(title, artist, year, coverUrl) {
+        this.id = ++albumId;
         this.title = title;
         this.artist = artist;
-        this.runtime = runtime;
-        this.coverUrl = coverUrl || 'https://via.placeholder.com/50';
-        this.createdAt = new Date();
+        this.year = year;
+        this.coverUrl = coverUrl;
     }
 
     summary() {
@@ -13,18 +19,5 @@ export class Album {
     }
 }
 
-export class CDAlbum extends Album {
-    constructor(title, artist, runtime, coverUrl, isRipped = false) {
-        super(title, artist, runtime, coverUrl);
-        this.format = "CD";
-        this.isRipped = isRipped;
-    }
-}
 
-export class DigitalAlbum extends Album {
-    constructor(title, artist, runtime, coverUrl, source) {
-        super(title, artist, runtime, coverUrl);
-        this.format = "Digital";
-        this.source = source;
-    }
-}
+
