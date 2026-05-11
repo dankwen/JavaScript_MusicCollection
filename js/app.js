@@ -32,18 +32,6 @@ try {
     collection = [];
 }
 
-// We need to reset the currentId serial since our old data has serials
-// if (collection.length > 0) {
-//     let maxId = 0;
-//     for (let i = 0; i < collection.length; i++) {
-//         let id = Number(collection[i].id);
-//         if (id > maxId) {
-//             maxId = id;
-//         }
-//     }
-//     setAlbumId(maxId);
-// }
-
 // Checking to see if we have enough items for the assignment requirement of 12
 if (collection.length < 12) {
     console.log("Collection is looking thin. Pushing seed data...");
@@ -80,19 +68,24 @@ const renderResultsEle = document.getElementById('render-results');
 //#EndRegion ==================================================================================
 
 //#Region Render Function =====================================================================
-function render(data = collection) {
+function renderList(data = collection) {
+
     renderResultsEle.innerHTML = '';
+
+    // Method .forEach replaces our for loop 
     data.forEach(function (album) {
-        const tr = document.createElement('tr');
+
         const extraInfo = album.format === "cd"
             // a ternary expression shortens the if... else statement
             // condition ? expressionIfTrue : expressionIfFalse;
             ? `<span class="badge ${album.isRipped ? 'bg-info' : 'bg-warning'}">
-            <input type="checkbox" data-id="${album.id}" ${album.isRipped ? 'checked' : ''}> Ripped</span>`
+            <input type="checkbox" data-id="${album.id}" ${album.isRipped ? 'checked' : ''}> Converted</span>`
             : `<span class="badge bg-info">${album.source}</span>`;
 
+        const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td class="d-none d-sm-block"><img src="${album.coverUrl}" width="40" height="40" class="rounded"></td>
+            <td class="d-none d-md-table-cell">
+                <img src="${album.coverUrl}" class="rounded"></td>
             <td class="fw-bold">${album.title}</td>
             <td>${album.artist}</td>
             <td>${album.year}</td>
@@ -100,8 +93,7 @@ function render(data = collection) {
             <td class="text-center">
                 <button class="btn btn-sm delete-btn" data-id="${album.id}">
                     <i class="bi bi-x-circle-fill"></i>
-                </button>
-               <button class="btn btn-sm edit-btn" data-id="${album.id}">
+                </button><button class="btn btn-sm edit-btn" data-id="${album.id}">
                     <i class="bi bi-pencil-square"></i>
                 </button>
             </td>
@@ -149,7 +141,7 @@ newAlbumFormEle.addEventListener('submit', (e) => {
     collection.push(newAlbum);
     saveCollection(collection);
     form.reset();
-    render();
+    renderList();
 });
 
 //#EndRegion ==================================================================================
@@ -175,7 +167,7 @@ document.getElementById('render-results').addEventListener('click', function (e)
         if (index > -1) {
             collection[index].isRipped = !collection[index].isRipped;
             saveCollection(collection);
-            render();
+            renderList();
         }
     }
 
@@ -190,7 +182,7 @@ document.getElementById('render-results').addEventListener('click', function (e)
             if (confirm(`Are you sure you want to permanently delete the album: ${collection[index].title}? (WARNING: This can not be undone!)`)) {
                 collection.splice(index, 1);
                 saveCollection(collection);
-                render();
+                renderList();
             }
         }
     }
@@ -205,13 +197,13 @@ document.getElementById('filter-search').addEventListener('input', (e) => {
     const filtered = collection.filter(a =>
         a.title.toLowerCase().includes(term) || a.artist.toLowerCase().includes(term)
     );
-    render(filtered);
+    renderList(filtered);
 });
 
 document.getElementById('filter-format').addEventListener('change', (e) => {
     const val = e.target.value;
     const filtered = val === 'all' ? collection : collection.filter(a => a.format === val);
-    render(filtered);
+    renderList(filtered);
 });
 
 
@@ -220,7 +212,7 @@ document.getElementById('filter-format').addEventListener('change', (e) => {
 //#region Runtime let's get started! ==========================================================
 console.group("---------- Runtime ----------");
 
-render();
+renderList();
 
 console.groupEnd();
 //#endregion ==================================================================================
