@@ -28,25 +28,21 @@ let collection = [];
 // Load from localStorage but do so with a try/fail in case there is no data or it's corrupted
 try {
     collection = loadCollection();
-    console.log("Storage check: Found " + collection.length + " items.");
 } catch (error) {
-    console.log("Load failed or storage empty. Resetting collection.", error);
     collection = [];
 }
 
 // We need to reset the currentId serial since our old data has serials
-if (collection.length > 0) {
-    console.log("We found localstorage data so resetting albumId.");
-    let maxId = 0;
-    for (let i = 0; i < collection.length; i++) {
-        let id = Number(collection[i].id);
-        if (id > maxId) {
-            maxId = id;
-        }
-    }
-    console.log(`We found maxId of ${maxId} so resetting to that.`)
-    setAlbumId(maxId);
-}
+// if (collection.length > 0) {
+//     let maxId = 0;
+//     for (let i = 0; i < collection.length; i++) {
+//         let id = Number(collection[i].id);
+//         if (id > maxId) {
+//             maxId = id;
+//         }
+//     }
+//     setAlbumId(maxId);
+// }
 
 // Checking to see if we have enough items for the assignment requirement of 12
 if (collection.length < 12) {
@@ -56,14 +52,14 @@ if (collection.length < 12) {
         new CDAlbum("Entreat", "The Cure", 1991, "https://upload.wikimedia.org/wikipedia/en/c/cd/The_Cure_Entreat.jpg", true),
         new DigitalAlbum("Tragic Kingdom", "No Doubt", 1995, "https://upload.wikimedia.org/wikipedia/en/9/9d/No_Doubt_-_Tragic_Kingdom.png", "Amazon"),
         new CDAlbum("Just Say Mao", "Sire CD Sampler", 1989, "https://upload.wikimedia.org/wikipedia/en/7/74/Just_Say_Mao.jpg", false),
-        new DigitalAlbum("Early Recordings", "Justin Hinds & The Dominoes", 1965, "https://m.media-amazon.com/images/I/61c5s6GdlEL._UX716_FMwebp_QL85_.jpg", "Amazon"),
+        new DigitalAlbum("Early Recordings", "Justin Hinds and the Dominoes", 1965, "https://m.media-amazon.com/images/I/61c5s6GdlEL._UX716_FMwebp_QL85_.jpg", "Amazon"),
         new CDAlbum("Welcome to the Pleasuredome", "Frankie Goes to Hollywood", 1984, "https://upload.wikimedia.org/wikipedia/en/0/0e/Welcome_To_The_Pleasuredome.jpg", true),
         new CDAlbum("Pop Goes The World", "Men Without Hats", 1987, "https://upload.wikimedia.org/wikipedia/en/a/a2/Men_Without_Hats-Pop_Goes_The_World.jpg", false),
-        new DigitalAlbum("Disintegration", "The Cure", 1989, "https://upload.wikimedia.org/wikipedia/en/b/b8/CureDisintegration.jpg", "Converted"),
         new CDAlbum("Delicate Sound of Thunder", "Pink Floyd", 1998, "https://upload.wikimedia.org/wikipedia/en/6/6b/Dsothunder-250.jpg", true),
+        new DigitalAlbum("Disintegration", "The Cure", 1989, "https://upload.wikimedia.org/wikipedia/en/b/b8/CureDisintegration.jpg", "Amazon"),
         new DigitalAlbum("Find a Way Home", "MXPX", 2023, "https://upload.wikimedia.org/wikipedia/en/thumb/d/d6/Find_a_Way_Home.jpg/250px-Find_a_Way_Home.jpg", "Bandcamp"),
         new CDAlbum("Revolver", "The Beatles", 1966, "https://upload.wikimedia.org/wikipedia/en/thumb/e/ec/Revolver_%28album_cover%29.jpg/250px-Revolver_%28album_cover%29.jpg", false),
-        new DigitalAlbum("LaTour", "LaTour", 1991, "https://upload.wikimedia.org/wikipedia/en/8/84/LaTouralbumcover.jpg", "Other"),
+        new DigitalAlbum("LaTour", "LaTour", 1991, "https://upload.wikimedia.org/wikipedia/en/8/84/LaTouralbumcover.jpg", "Converted"),
         new DigitalAlbum("Borders & Boundaries", "Less Than Jake", 2000, "https://upload.wikimedia.org/wikipedia/en/e/e2/LTJ-Borders-boundaries.jpg", "Bandcamp")
     ];
 
@@ -81,36 +77,38 @@ const albumFormatEle = document.getElementById('album-format');
 const albumSourceEle = document.getElementById('album-source');
 const albumSourceHiderEle = document.getElementById('album-source-hider');
 const renderResultsEle = document.getElementById('render-results');
-
-
 //#EndRegion ==================================================================================
 
 //#Region Render Function =====================================================================
-
 function render(data = collection) {
     renderResultsEle.innerHTML = '';
-    data.forEach(album => {
+    data.forEach(function (album) {
         const tr = document.createElement('tr');
         const extraInfo = album.format === "cd"
-            ? `<input type="checkbox" ${album.isRipped ? 'checked' : ''} onclick="return false;"> Ripped`
+            // a ternary expression shortens the if... else statement
+            // condition ? expressionIfTrue : expressionIfFalse;
+            ? `<span class="badge ${album.isRipped ? 'bg-info' : 'bg-warning'}">
+            <input type="checkbox" data-id="${album.id}" ${album.isRipped ? 'checked' : ''}> Ripped</span>`
             : `<span class="badge bg-info">${album.source}</span>`;
 
         tr.innerHTML = `
             <td class="d-none d-sm-block"><img src="${album.coverUrl}" width="40" height="40" class="rounded"></td>
             <td class="fw-bold">${album.title}</td>
             <td>${album.artist}</td>
-            <td><span class="badge ${album.format === 'cd' ? 'bg-secondary' : 'bg-primary'}">${album.format}</span></td>
+            <td>${album.year}</td>
             <td class="text-center">${extraInfo}</td>
             <td class="text-center">
-                <button class="btn btn-sm btn-outline-danger" onclick="deleteAlbum(${album.id})">
-                    <i class="bi bi-trash"></i>
+                <button class="btn btn-sm delete-btn" data-id="${album.id}">
+                    <i class="bi bi-x-circle-fill"></i>
+                </button>
+               <button class="btn btn-sm edit-btn" data-id="${album.id}">
+                    <i class="bi bi-pencil-square"></i>
                 </button>
             </td>
         `;
         renderResultsEle.appendChild(tr);
     });
 }
-
 //#EndRegion ==================================================================================
 
 //#Region New/Edit Album Form =================================================================
@@ -124,18 +122,17 @@ albumFormatEle.addEventListener('change', function (e) {
     }
 });
 
-
 // Add New Item with Validation ---------------------------------------------------------------
 newAlbumFormEle.addEventListener('submit', (e) => {
     e.preventDefault();
 
     // RegExp Validation (Requirement: Title/Artist must start with Letter, 2+ chars)
-    const nameRegex = /^[A-Za-z0-9\s]{2,}$/;
+    const nameRegex = /^[A-Za-z0-9\s]{1,}$/;
     const titleVal = document.getElementById('title').value;
     const artistVal = document.getElementById('artist').value;
 
     if (!nameRegex.test(titleVal) || !nameRegex.test(artistVal)) {
-        alert("Please enter a valid Title and Artist (at least 2 characters).");
+        alert("Please enter a valid Title and Artist (at least 1 character).");
         return;
     }
 
@@ -154,6 +151,51 @@ newAlbumFormEle.addEventListener('submit', (e) => {
     form.reset();
     render();
 });
+
+//#EndRegion ==================================================================================
+
+//#Region Table Body Actions ===================================================================
+
+document.getElementById('render-results').addEventListener('click', function (e) {
+    const convertAlbum = e.target.closest('input[type="checkbox"]');
+    const deleteAlbum = e.target.closest('.bi-x-circle-fill');
+
+    // UX Note for Patrick:
+    // I thought about putting the click event on the whole Ripped badge instead of just the checkbox,
+    // But since the whole line is clickable to get album details, I wanted the conversion to be 
+    // a little harder to trigger... so this is a deliberate choice, and since the feedback of status
+    // is instant, a mis-click can be easily reversed.
+    if (convertAlbum) {
+        const id = Number(convertAlbum.dataset.id);
+        const index = collection.findIndex(function (album) {
+            if (album.id === id) { return true; }
+            return false;
+        });
+
+        if (index > -1) {
+            collection[index].isRipped = !collection[index].isRipped;
+            saveCollection(collection);
+            render();
+        }
+    }
+
+    if (deleteAlbum) {
+        const id = Number(deleteAlbum.parentElement.dataset.id);
+        const index = collection.findIndex(function (album) {
+            if (album.id === id) { return true; }
+            return false;
+        });
+
+        if (index > -1) {
+            if (confirm(`Are you sure you want to permanently delete the album: ${collection[index].title}? (WARNING: This can not be undone!)`)) {
+                collection.splice(index, 1);
+                saveCollection(collection);
+                render();
+            }
+        }
+    }
+});
+
 //#EndRegion ==================================================================================
 
 //#Region Sorting and Filtering Listeners =====================================================
@@ -172,12 +214,6 @@ document.getElementById('filter-format').addEventListener('change', (e) => {
     render(filtered);
 });
 
-// Global delete function
-window.deleteAlbum = (id) => {
-    collection = collection.filter(a => a.id !== id);
-    saveCollection(collection);
-    render();
-};
 
 //#EndRegion ==================================================================================
 

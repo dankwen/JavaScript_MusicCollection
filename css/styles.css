@@ -1,5 +1,4 @@
 .table-hover tbody tr {
-    cursor: pointer;
     transition: background-color 0.2s;
 }
 
@@ -7,8 +6,30 @@
     font-weight: 500;
 }
 
-/* Strikethrough effect for ripped CDs if you want that TODO look */
-tr:has(input[type="checkbox"]:checked) .fw-bold {
-    color: var(--bs-secondary);
-    text-decoration: line-through;
+td>span>input[type="checkbox"] {
+    cursor: pointer;
+
+    &:hover {
+        transform: scale(1.2);
+    }
+}
+
+.delete-btn {
+    color: var(--bs-gray-400);
+    cursor: pointer;
+
+    &:hover {
+        color: var(--bs-danger);
+        font-size: 120%;
+    }
+}
+
+.edit-btn {
+    color: var(--bs-gray-400);
+    cursor: pointer;
+
+    &:hover {
+        color: var(--bs-success);
+        font-size: 120%;
+    }
 }

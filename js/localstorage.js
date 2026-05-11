@@ -7,11 +7,13 @@ export function saveCollection(data) {
 
 export function loadCollection() {
     const rawData = JSON.parse(localStorage.getItem('musicCollection')) || [];
-    // Re-instantiate classes to maintain methods
-    return rawData.map(item => {
+    // the .map method allows us to convert the data into something else
+    // In this case, we create a new set of albums using the constructors...
+    // (This also avoids any localstorage persistent .id errors that I had to deal with in my task manager)
+    return rawData.map(function(item) {
         if (item.format === "cd") {
-            return new CDAlbum(item.title, item.artist, item.date, item.coverUrl, item.isRipped);
+            return new CDAlbum(item.title, item.artist, item.year, item.coverUrl, item.isRipped);
         }
-        return new DigitalAlbum(item.title, item.artist, item.date, item.coverUrl, item.source);
+        return new DigitalAlbum(item.title, item.artist, item.year, item.coverUrl, item.source);
     });
 }
