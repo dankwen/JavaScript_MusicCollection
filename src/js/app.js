@@ -174,28 +174,103 @@ albumFormatEle.addEventListener('change', function (e) {
 
 // Add New Item with Validation ---------------------------------------------------------------
 
+function setValidationError(inputEle, message) {
+    const errorEle = document.getElementById(`${inputEle.id}-error`);
+    if (errorEle) {
+        errorEle.textContent = message;
+        errorEle.classList.add('active');
+    }
+    inputEle.classList.add('input-error');
+}
+
+function clearValidationError(inputEle) {
+    const errorEle = document.getElementById(`${inputEle.id}-error`);
+    if (errorEle) {
+        errorEle.textContent = '';
+        errorEle.classList.remove('active');
+    }
+    inputEle.classList.remove('input-error');
+}
+
+function clearAllValidationErrors() {
+    ['album-title', 'album-artist', 'album-year', 'album-cover', 'album-source'].forEach(function (id) {
+        const element = document.getElementById(id);
+        if (element) {
+            clearValidationError(element);
+        }
+    });
+}
+
 function createAlbum() {
-    // RegExp Validation (Requirement: Title/Artist must start with Letter, 1+ chars)
-    const titleVal = document.getElementById('album-title').value;
-    const artistVal = document.getElementById('album-artist').value;
-    const yearVal = document.getElementById('album-year').value;
-    const coverURLVal = document.getElementById('album-cover').value;
-    const nameRegex = /^[A-Za-z0-9\s]{1,}$/;
+    clearAllValidationErrors();
 
-    // if (!nameRegex.test(titleVal) || !nameRegex.test(artistVal)) {
-    //     alert("Please enter a valid Title and Artist (at least 1 character).");
-    //     return;
-    // }
+    const titleInput = document.getElementById('album-title');
+    const artistInput = document.getElementById('album-artist');
+    const yearInput = document.getElementById('album-year');
+    const coverInput = document.getElementById('album-cover');
+    const sourceInput = document.getElementById('album-source');
 
-    // TODO: we require validation for other fields
-    // TODO: also note that digitalSourceVal may be blank in some cases ()
+    const titleVal = titleInput.value.trim();
+    const artistVal = artistInput.value.trim();
+    const yearVal = yearInput.value.trim();
+    const coverURLVal = coverInput.value.trim();
+    const sourceVal = sourceInput.value.trim();
 
+    // RegExp Pattern: Starts with Letter/Number, followed by allowed special chars
+    // \p{L} = Any Unicode letter
+    // \p{N} = Any Unicode number
+    // \s = Whitespace
+    // [\-_$*] = Specific allowed symbols: hyphen, underscore, dollar, asterisk
+    const nameRegex = /^[\p{L}\p{N}][\p{L}\p{N}\s\-_$*&.,'()<>]*$/u;
+    const yearRegex = /^\d{4}$/;
+    const currentYear = new Date().getFullYear();
+
+    let hasError = false;
+
+    if (!nameRegex.test(titleVal)) {
+        setValidationError(titleInput, 'Title must start with a letter and contain at least one character.');
+        hasError = true;
+    }
+
+    if (!nameRegex.test(artistVal)) {
+        setValidationError(artistInput, 'Artist must start with a letter and contain at least one character.');
+        hasError = true;
+    }
+
+    if (!yearRegex.test(yearVal)) {
+        setValidationError(yearInput, 'Year must be a four-digit number.');
+        hasError = true;
+    } else {
+        const yearNumber = Number(yearVal);
+        if (yearNumber < 1900 || yearNumber > currentYear) {
+            setValidationError(yearInput, `Year must be between 1900 and ${currentYear}.`);
+            hasError = true;
+        }
+    }
+
+    try {
+        new URL(coverURLVal);
+    } catch (error) {
+        setValidationError(coverInput, 'Cover URL must be a valid URL starting with https:// or http://.');
+        hasError = true;
+    }
+
+    if (albumFormatEle.value === 'digital' && sourceVal === '') {
+        setValidationError(sourceInput, 'Please select a source for digital albums.');
+        hasError = true;
+    }
+
+    if (hasError) {
+        return;
+    }
+
+    const albumYear = Number(yearVal);
     let newAlbum;
 
-    if (albumFormatEle.value === "cd") {
-        newAlbum = new CDAlbum(titleVal, artistVal, yearVal, coverURLVal, false);
+    if (albumFormatEle.value === 'cd') {
+        newAlbum = new CDAlbum(titleVal, artistVal, albumYear, coverURLVal, false);
     } else {
-        newAlbum = new DigitalAlbum(titleVal, artistVal, yearVal, coverURLVal, document.getElementById('source').value);
+        newAlbum = new DigitalAlbum(titleVal, artistVal, albumYear, coverURLVal, sourceVal);
     }
 
     collection.push(newAlbum);

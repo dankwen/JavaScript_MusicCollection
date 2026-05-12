@@ -21,37 +21,55 @@ td:last-child {
 td>span>input[type="checkbox"] {
     cursor: pointer;
     vertical-align: -2px;
+}
 
-    &:hover {
-        transform: scale(1.2);
-    }
+td>span>input[type="checkbox"]:hover {
+    transform: scale(1.2);
 }
 
 .delete-btn {
     color: var(--bs-gray-400);
     cursor: pointer;
+}
 
-    &:hover {
-        color: var(--bs-danger);
-        font-size: 120%;
-    }
+.delete-btn:hover {
+    color: var(--bs-danger);
+    font-size: 120%;
 }
 
 .edit-btn {
     color: var(--bs-gray-400);
     cursor: pointer;
+}
 
-    &:hover {
-        color: var(--bs-success);
-        font-size: 120%;
-    }
+.edit-btn:hover {
+    color: var(--bs-success);
+    font-size: 120%;
 }
 
 .sort-button {
     cursor: pointer;
     user-select: none;
+}
 
-    &:hover {
-        color: var(--bs-primary-bg-subtle);
-    }
+.sort-button:hover {
+    color: var(--bs-primary-bg-subtle);
+}
+
+.input-error {
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+}
+
+.error-message {
+    color: #dc3545;
+    font-size: 0.875rem;
+    min-height: 1.25rem;
+    line-height: 1.25rem;
+    margin-top: 0.25rem;
+    visibility: hidden;
+}
+
+.error-message.active {
+    visibility: visible;
 }

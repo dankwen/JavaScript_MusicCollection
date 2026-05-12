@@ -42,14 +42,17 @@
                     <div class="col-md-5">
                         <label class="form-label fw-bold">Title</label>
                         <input type="text" id="album-title" class="form-control" aria-required="true">
+                        <div class="error-message" id="album-title-error" aria-live="polite"></div>
                     </div>
                     <div class="col-md-5">
                         <label class="form-label fw-bold">Artist</label>
                         <input type="text" id="album-artist" class="form-control" aria-required="true">
+                        <div class="error-message" id="album-artist-error" aria-live="polite"></div>
                     </div>
                     <div class="col-md-2">
                         <label class="form-label fw-bold">Year</label>
                         <input type="number" id="album-year" class="form-control" aria-required="true">
+                        <div class="error-message" id="album-year-error" aria-live="polite"></div>
                     </div>
                     <div class="col-md-3">
                         <label class="form-label fw-bold">Format</label>
@@ -61,6 +64,7 @@
                     <div class="col-md-6">
                         <label class="form-label fw-bold">Cover URL</label>
                         <input type="url" id="album-cover" class="form-control" placeholder="https://..." aria-required="true">
+                        <div class="error-message" id="album-cover-error" aria-live="polite"></div>
                     </div>
                     <div id="album-source-hider" class="col-md-3 d-none">
                         <label class="form-label fw-bold">Source</label>
@@ -69,6 +73,7 @@
                             <option value="Bandcamp">Bandcamp</option>
                             <option value="Other">Other</option>
                         </select>
+                        <div class="error-message" id="album-source-error" aria-live="polite"></div>
                     </div>
                     <div class="col-12 text-end">
                         <button type="submit" class="btn btn-primary px-5">Add to Collection</button>
