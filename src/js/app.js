@@ -1,23 +1,15 @@
 // Dan Wenger
 // JavaScript Assignment M5 - Arrays
 
-//#region IPO Chart ===========================================================================
-console.groupCollapsed("---------- IPO Chart ----------");
-console.group("---------- INPUTS -----------");
-console.log("");
-console.groupEnd();
-console.group("---------- PROCESS ----------");
-console.log("");
-console.groupEnd();
-console.group("---------- OUTPUT -----------");
-console.log("");
-console.groupEnd();
-console.groupEnd();
-console.log("\n\n");
+
+//#region Import Functions ====================================================================
+import { albumId, setAlbumId } from './models/album.js';
+import { CDAlbum } from './models/albumcd.js';
+import { DigitalAlbum } from './models/albumdigital.js';
+import { saveCollection, loadCollection } from './localstorage.js';
 //#endregion ==================================================================================
 
-
-//#Region Define Some Scoped Variables ========================================================
+//#region Define Global Variables =============================================================
 const newAlbumFormEle = document.getElementById('album-form');
 const albumFormatEle = document.getElementById('album-format');
 const albumSourceEle = document.getElementById('album-source');
@@ -26,7 +18,6 @@ const renderResultsEle = document.getElementById('render-results');
 const sortTitleIconEle = document.getElementById('sort-title-icon');
 const sortArtistIconEle = document.getElementById('sort-artist-icon');
 const sortYearIconEle = document.getElementById('sort-year-icon');
-const sortStatusIconEle = document.getElementById('sort-status-icon');
 
 let collection = [];
 
@@ -36,18 +27,12 @@ let filterFormatSetting = 'all';
 let weSortedTitle = false;
 let weSortedArtist = false;
 let weSortedYear = false;
-let weSortedStatus = false;
 
-//#EndRegion ==================================================================================
+//#endregion ==================================================================================
 
+//#region Load/Populate Data Array ============================================================
 
-//#Region Imports and Setups ==================================================================
-import { albumId, setAlbumId } from './models/album.js';
-import { CDAlbum } from './models/albumcd.js';
-import { DigitalAlbum } from './models/albumdigital.js';
-import { saveCollection, loadCollection } from './localstorage.js';
-
-// Load from localStorage but do so with a try/fail in case there is no data or it's corrupted
+// Load from localStorage with a try/catch in case there is no data or it's corrupted
 try {
     collection = loadCollection();
 } catch (error) {
@@ -78,12 +63,11 @@ if (collection.length < 12) {
 
     saveCollection(collection);
 }
-//#EndRegion ==================================================================================
+//#endregion ==================================================================================
 
+//#region Functions ===========================================================================
 
-//#Region Functions ===========================================================================
-
-// Render Function ----------------------------------------------------------------------------
+//#region Render Function ---------------------------------------------------------------------
 function renderList() {
 
     renderResultsEle.innerHTML = '';
@@ -123,20 +107,32 @@ function renderList() {
         };
     });
 };
+//#endregion ----------------------------------------------------------------------------------
 
-// Update Sort Icons --------------------------------------------------------------------------
+//#region Update Sort Functions ---------------------------------------------------------------
+
+function sortBy(topic) {
+    collection.sort(function (a, b) {
+        // Use bracket notation a[topic] to access the property dynamically
+        const valA = String(a[topic]).toLowerCase();
+        const valB = String(b[topic]).toLowerCase();
+
+        if (valA < valB) { return -1; }
+        if (valA > valB) { return 1; }
+        return 0;
+    });
+    renderList();
+};
 
 function weSorted(target, direction) {
 
     sortTitleIconEle.innerHTML = '';
     sortArtistIconEle.innerHTML = '';
     sortYearIconEle.innerHTML = '';
-    sortStatusIconEle.innerHTML = '';
 
     weSortedTitle = false;
     weSortedArtist = false;
     weSortedYear = false;
-    weSortedStatus = false;
 
     switch (target) {
         case 'title':
@@ -151,20 +147,15 @@ function weSorted(target, direction) {
             sortYearIconEle.innerHTML = `<i class="bi bi-arrow-${direction}"></i>`;
             weSortedYear = true;
             break;
-        case 'status':
-            sortStatusIconEle.innerHTML = `<i class="bi bi-arrow-${direction}"></i>`;
-            weSortedStatus = true;
-            break;
         default:
             break;
     }
-
 }
+//#endregion ----------------------------------------------------------------------------------
 
-//#EndRegion ==================================================================================
+//#endregion ==================================================================================
 
-
-//#Region New/Edit Album Form =================================================================
+//#region New/Edit Album Form =================================================================
 
 // Toggle Conditional Form Fields -------------------------------------------------------------
 albumFormatEle.addEventListener('change', function (e) {
@@ -205,11 +196,9 @@ newAlbumFormEle.addEventListener('submit', function (e) {
     renderList();
 });
 
-//#EndRegion ==================================================================================
+//#endregion ==================================================================================
 
-
-
-//#Region Table Body Actions ===================================================================
+//#region Table Body Actions ===================================================================
 
 document.getElementById('render-results').addEventListener('click', function (e) {
     const convertAlbum = e.target.closest('input[type="checkbox"]');
@@ -217,8 +206,7 @@ document.getElementById('render-results').addEventListener('click', function (e)
 
     // UX Note for Patrick:
     // I thought about putting the click event on the whole 'Converted' badge instead of just the checkbox,
-    // But I wanted the conversion to be a little harder to trigger... the conversion is a one time event
-    // that would only be done once, so this is a deliberate choice. 
+    // But I wanted the conversion to be a little harder to trigger... the conversion is a one time/rare event.
     if (convertAlbum) {
         const id = Number(convertAlbum.dataset.id);
         const index = collection.findIndex(function (album) {
@@ -250,54 +238,62 @@ document.getElementById('render-results').addEventListener('click', function (e)
     }
 });
 
-//#EndRegion ==================================================================================
+//#endregion ==================================================================================
 
+//#region Sorting Listeners ===================================================================
 
-
-//#Region Sorting and Filtering Listeners =====================================================
-
-// Sorting ------------------------------------------------------------------------------------
 document.getElementById('sort-title').addEventListener('click', function (e) {
     switch (weSortedTitle) {
         case false:
-            collection.sort(function (a, b) {
-                if (a.title.toLowerCase() < b.title.toLowerCase()) { return -1; }
-                else if (a.title.toLowerCase() > b.title.toLowerCase()) { return 1; }
-                else { return 0; }
-            })
+            sortBy('title');
             weSorted('title', 'down');
             break;
 
-        default: 
+        default:
             collection.reverse();
             weSorted('title', 'up');
             weSortedTitle = false;
+            renderList();
             break;
     };
-    renderList();
 });
 
 document.getElementById('sort-artist').addEventListener('click', function (e) {
     switch (weSortedArtist) {
         case false:
-            collection.sort(function (a, b) {
-                if (a.artist.toLowerCase() < b.artist.toLowerCase()) { return -1; }
-                else if (a.artist.toLowerCase() > b.artist.toLowerCase()) { return 1; }
-                else { return 0; }
-            })
+            sortBy('artist');
             weSorted('artist', 'down');
             break;
 
-        default: 
+        default:
             collection.reverse();
             weSorted('artist', 'up');
             weSortedArtist = false;
+            renderList();
             break;
     };
-    renderList();
 });
 
-// Filters ------------------------------------------------------------------------------------
+document.getElementById('sort-year').addEventListener('click', function (e) {
+    switch (weSortedYear) {
+        case false:
+            sortBy('year');
+            weSorted('year', 'down');
+            break;
+
+        default:
+            collection.reverse();
+            weSorted('year', 'up');
+            weSortedArtist = false;
+            renderList();
+            break;
+    };
+});
+
+
+//#endregion ==================================================================================
+
+//#region Filtering Listeners =================================================================
 document.getElementById('filter-search').addEventListener('input', function (e) {
     filterSearchSetting = e.target.value.toLowerCase();
     renderList();
@@ -307,9 +303,8 @@ document.getElementById('filter-format').addEventListener('change', function (e)
     filterFormatSetting = e.target.value;
     renderList();
 });
-//#EndRegion ==================================================================================
 
-
+//#endregion ==================================================================================
 
 //#region Runtime let's get started! ==========================================================
 console.group("---------- Runtime ----------");
