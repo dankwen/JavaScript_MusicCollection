@@ -12,7 +12,6 @@ import { saveCollection, loadCollection } from './localstorage.js';
 //#region Define Global Variables =============================================================
 const newAlbumFormEle = document.getElementById('album-form');
 const albumFormatEle = document.getElementById('album-format');
-const albumSourceEle = document.getElementById('album-source');
 const albumSourceHiderEle = document.getElementById('album-source-hider');
 const renderResultsEle = document.getElementById('render-results');
 const sortTitleIconEle = document.getElementById('sort-title-icon');
@@ -27,6 +26,12 @@ let filterFormatSetting = 'all';
 let weSortedTitle = false;
 let weSortedArtist = false;
 let weSortedYear = false;
+
+let currentAlbumId = null;
+const albumModal = new bootstrap.Modal(document.getElementById('albumModal'));
+const nameRegexForValidation = /^[\p{L}\p{N}][\p{L}\p{N}\s\-_$*&.,'()<>]*$/u;
+const yearRegex = /^\d{4}$/;
+
 
 //#endregion ==================================================================================
 
@@ -71,7 +76,7 @@ if (collection.length < 12) {
 }
 //#endregion ==================================================================================
 
-//#region Functions ===========================================================================
+//#region Core Functions ======================================================================
 
 //#region Render Function ---------------------------------------------------------------------
 function renderList() {
@@ -96,10 +101,10 @@ function renderList() {
 
             const tr = document.createElement('tr');
             tr.innerHTML = `
-            <td class="d-none d-md-table-cell">
+            <td class="d-none d-md-table-cell album-detail-trigger" data-id="${album.id}" role="button">
                 <img src="${album.coverUrl}" class="rounded border"></td>
-            <td class="fw-bold">${album.title}</td>
-            <td>${album.artist}</td>
+            <td class="fw-bold album-detail-trigger" data-id="${album.id}" role="button">${album.title}</td>
+            <td class="album-detail-trigger" data-id="${album.id}" role="button">${album.artist}</td>
             <td>${album.year}</td>
             <td class="text-center">${extraInfo}</td>
             <td class="text-center">
@@ -110,9 +115,9 @@ function renderList() {
                 </button>
             </td>`;
             renderResultsEle.appendChild(tr);
-        };
+        }
     });
-};
+}
 //#endregion ----------------------------------------------------------------------------------
 
 //#region Update Sort Functions ---------------------------------------------------------------
@@ -128,7 +133,7 @@ function sortBy(topic) {
         return 0;
     });
     renderList();
-};
+}
 
 function weSorted(target, direction) {
 
@@ -216,23 +221,16 @@ function createAlbum() {
     const coverURLVal = coverInput.value.trim();
     const sourceVal = sourceInput.value.trim();
 
-    // RegExp Pattern: Starts with Letter/Number, followed by allowed special chars
-    // \p{L} = Any Unicode letter
-    // \p{N} = Any Unicode number
-    // \s = Whitespace
-    // [\-_$*] = Specific allowed symbols: hyphen, underscore, dollar, asterisk
-    const nameRegex = /^[\p{L}\p{N}][\p{L}\p{N}\s\-_$*&.,'()<>]*$/u;
-    const yearRegex = /^\d{4}$/;
     const currentYear = new Date().getFullYear();
 
     let hasError = false;
 
-    if (!nameRegex.test(titleVal)) {
+    if (!nameRegexForValidation.test(titleVal)) {
         setValidationError(titleInput, 'Title must start with a letter and contain at least one character.');
         hasError = true;
     }
 
-    if (!nameRegex.test(artistVal)) {
+    if (!nameRegexForValidation.test(artistVal)) {
         setValidationError(artistInput, 'Artist must start with a letter and contain at least one character.');
         hasError = true;
     }
@@ -279,7 +277,6 @@ function createAlbum() {
     renderList();
 }
 
-
 // Album Form Listeners -----------------------------------------------------------------------
 newAlbumFormEle.addEventListener('submit', function (e) {
     e.preventDefault();
@@ -293,21 +290,155 @@ newAlbumFormEle.addEventListener('keydown', function (e) {
     }
 
     if (e.key === 'Escape') {
+        clearAllValidationErrors();
         this.reset();
     }
 });
 
 //#endregion ==================================================================================
 
-//#region Table Body Actions ==================================================================
+//#region Modal Functions =====================================================================
+
+function clearEditValidationErrors() {
+    ['edit-title', 'edit-artist', 'edit-year', 'edit-cover', 'edit-source'].forEach(function (id) {
+        const element = document.getElementById(id);
+        if (element) {
+            clearValidationError(element);
+        }
+    });
+}
+
+function showAlbumDetailView(albumId) {
+    const album = collection.find(a => a.id === albumId);
+    if (!album) return;
+
+    currentAlbumId = albumId;
+    const summary = album.summary();
+
+    document.getElementById('albumModalLabel').textContent = 'Album Details';
+    document.getElementById('modal-cover-img').src = album.coverUrl;
+    document.getElementById('modal-title-view').textContent = album.title;
+    document.getElementById('modal-artist-view').textContent = album.artist;
+    document.getElementById('modal-year-view').textContent = album.year;
+    document.getElementById('modal-format-view').textContent = album.format === 'cd' ? 'Compact Disc' : 'Digital (MP3)';
+
+    if (album.format === 'digital') {
+        document.getElementById('modal-source-view-container').classList.remove('d-none');
+        document.getElementById('modal-source-view').textContent = album.source;
+    } else {
+        document.getElementById('modal-source-view-container').classList.add('d-none');
+    }
+
+    document.getElementById('album-view-mode').classList.remove('d-none');
+    document.getElementById('album-edit-mode').classList.add('d-none');
+    document.getElementById('modal-edit-btn').classList.remove('d-none');
+    document.getElementById('edit-action-buttons').classList.add('d-none');
+
+    albumModal.show();
+}
+
+function switchToEditMode() {
+    const album = collection.find(a => a.id === currentAlbumId);
+    if (!album) return;
+
+    clearEditValidationErrors();
+
+    document.getElementById('albumModalLabel').textContent = 'Edit Album';
+    document.getElementById('edit-title').value = album.title;
+    document.getElementById('edit-artist').value = album.artist;
+    document.getElementById('edit-year').value = album.year;
+    document.getElementById('edit-cover').value = album.coverUrl;
+
+    if (album.format === 'digital') {
+        document.getElementById('edit-source-container').classList.remove('d-none');
+        document.getElementById('edit-source').value = album.source;
+    } else {
+        document.getElementById('edit-source-container').classList.add('d-none');
+    }
+
+    document.getElementById('album-view-mode').classList.add('d-none');
+    document.getElementById('album-edit-mode').classList.remove('d-none');
+    document.getElementById('modal-edit-btn').classList.add('d-none');
+    document.getElementById('edit-action-buttons').classList.remove('d-none');
+}
+
+function saveAlbumChanges() {
+    clearEditValidationErrors();
+
+    const titleInput = document.getElementById('edit-title');
+    const artistInput = document.getElementById('edit-artist');
+    const yearInput = document.getElementById('edit-year');
+    const coverInput = document.getElementById('edit-cover');
+    const sourceInput = document.getElementById('edit-source');
+
+    const titleVal = titleInput.value.trim();
+    const artistVal = artistInput.value.trim();
+    const yearVal = yearInput.value.trim();
+    const coverURLVal = coverInput.value.trim();
+    const sourceVal = sourceInput.value.trim();
+
+    const currentYear = new Date().getFullYear();
+    let hasError = false;
+
+    if (!nameRegexForValidation.test(titleVal)) {
+        setValidationError(titleInput, 'Title must start with a letter and contain at least one character.');
+        hasError = true;
+    }
+
+    if (!nameRegexForValidation.test(artistVal)) {
+        setValidationError(artistInput, 'Artist must start with a letter and contain at least one character.');
+        hasError = true;
+    }
+
+    if (!yearRegex.test(yearVal)) {
+        setValidationError(yearInput, 'Year must be a four-digit number.');
+        hasError = true;
+    } else {
+        const yearNumber = Number(yearVal);
+        if (yearNumber < 1900 || yearNumber > currentYear) {
+            setValidationError(yearInput, `Year must be between 1900 and ${currentYear}.`);
+            hasError = true;
+        }
+    }
+
+    try {
+        new URL(coverURLVal);
+    } catch (error) {
+        setValidationError(coverInput, 'Cover URL must be a valid URL starting with https:// or http://.');
+        hasError = true;
+    }
+
+    const album = collection.find(a => a.id === currentAlbumId);
+    if (album.format === 'digital' && sourceVal === '') {
+        setValidationError(sourceInput, 'Please select a source for digital albums.');
+        hasError = true;
+    }
+
+    if (hasError) return;
+
+    album.title = titleVal;
+    album.artist = artistVal;
+    album.year = Number(yearVal);
+    album.coverUrl = coverURLVal;
+    if (album.format === 'digital') {
+        album.source = sourceVal;
+    }
+
+    saveCollection(collection);
+    albumModal.hide();
+    renderList();
+}
+
+//#endregion ==================================================================================
+
+//#region Table Body Listener =================================================================
 
 document.getElementById('render-results').addEventListener('click', function (e) {
     const convertAlbum = e.target.closest('input[type="checkbox"]');
     const deleteAlbum = e.target.closest('.bi-x-circle-fill');
+    const editAlbum = e.target.closest('.edit-btn');
+    const detailTrigger = e.target.closest('.album-detail-trigger');
 
-    // UX Note for Patrick:
-    // I thought about putting the click event on the whole 'Converted' badge instead of just the checkbox,
-    // But I wanted the conversion to be a little harder to trigger... the conversion is a one time/rare event.
     if (convertAlbum) {
         const id = Number(convertAlbum.dataset.id);
         const index = collection.findIndex(function (album) {
@@ -336,6 +467,17 @@ document.getElementById('render-results').addEventListener('click', function (e)
                 renderList();
             }
         }
+    }
+
+    if (editAlbum) {
+        const id = Number(editAlbum.dataset.id);
+        showAlbumDetailView(id);
+        setTimeout(() => switchToEditMode(), 100);
+    }
+
+    if (detailTrigger) {
+        const id = Number(detailTrigger.dataset.id);
+        showAlbumDetailView(id);
     }
 });
 
@@ -385,12 +527,11 @@ document.getElementById('sort-year').addEventListener('click', function (e) {
         default:
             collection.reverse();
             weSorted('year', 'up');
-            weSortedArtist = false;
+            weSortedYear = false;
             renderList();
             break;
     };
 });
-
 
 //#endregion ==================================================================================
 
@@ -402,6 +543,23 @@ document.getElementById('filter-search').addEventListener('input', function (e) 
 
 document.getElementById('filter-format').addEventListener('change', function (e) {
     filterFormatSetting = e.target.value;
+    renderList();
+});
+
+//#endregion ==================================================================================
+
+//#region Modal Listeners =====================================================================
+
+document.getElementById('modal-edit-btn').addEventListener('click', function () {
+    switchToEditMode();
+});
+
+document.getElementById('modal-save-btn').addEventListener('click', function () {
+    saveAlbumChanges();
+});
+
+document.getElementById('modal-cancel-btn').addEventListener('click', function () {
+    albumModal.hide();
     renderList();
 });
 

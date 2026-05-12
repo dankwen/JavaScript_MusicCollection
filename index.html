@@ -121,6 +121,89 @@
         </section>
     </main>
 
+    <!-- Album Detail/Edit Modal -->
+    <div class="modal fade" id="albumModal" tabindex="-1" aria-labelledby="albumModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="albumModalLabel">Album Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="album-view-mode" class="d-none" role="region" aria-label="Album View">
+                        <div class="text-center mb-4">
+                            <img id="modal-cover-img" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23ddd' width='200' height='200'/%3E%3C/svg%3E" alt="Album Cover" class="rounded border modal-album-cover">
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Title</label>
+                                <p id="modal-title-view" class="text-muted"></p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Artist</label>
+                                <p id="modal-artist-view" class="text-muted"></p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Year</label>
+                                <p id="modal-year-view" class="text-muted"></p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Format</label>
+                                <p id="modal-format-view" class="text-muted"></p>
+                            </div>
+                            <div class="col-md-6 d-none" id="modal-source-view-container">
+                                <label class="form-label fw-bold">Source</label>
+                                <p id="modal-source-view" class="text-muted"></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="album-edit-mode" class="d-none" role="region" aria-label="Album Edit">
+                        <form id="album-edit-form" class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Title</label>
+                                <input type="text" id="edit-title" class="form-control" required>
+                                <div class="error-message" id="edit-title-error" aria-live="polite"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Artist</label>
+                                <input type="text" id="edit-artist" class="form-control" required>
+                                <div class="error-message" id="edit-artist-error" aria-live="polite"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Year</label>
+                                <input type="number" id="edit-year" class="form-control" required>
+                                <div class="error-message" id="edit-year-error" aria-live="polite"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Cover URL</label>
+                                <input type="url" id="edit-cover" class="form-control" required>
+                                <div class="error-message" id="edit-cover-error" aria-live="polite"></div>
+                            </div>
+                            <div class="col-md-6 d-none" id="edit-source-container">
+                                <label class="form-label fw-bold">Source</label>
+                                <select id="edit-source" class="form-select" required>
+                                    <option value="Amazon">Amazon Music</option>
+                                    <option value="Bandcamp">Bandcamp</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                                <div class="error-message" id="edit-source-error" aria-live="polite"></div>
+                            </div>
+                            <button type="submit" class="d-none"></button>
+                        </form>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" id="modal-edit-btn" class="btn btn-warning"><i class="bi bi-pencil-square me-2"></i>Edit</button>
+                    <div id="edit-action-buttons" class="d-none">
+                        <button type="button" id="modal-save-btn" class="btn btn-success">Save Changes</button>
+                        <button type="button" id="modal-cancel-btn" class="btn btn-secondary">Cancel</button>
+                    </div>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script type="module" src="src/js/app.js"></script>
 </body>

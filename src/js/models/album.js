@@ -15,7 +15,15 @@ export class Album {
     }
 
     summary() {
-        return `${this.title} by ${this.artist}`;
+        return {
+            id: this.id,
+            title: this.title,
+            artist: this.artist,
+            year: this.year,
+            coverUrl: this.coverUrl,
+            format: this.format,
+            displayText: `${this.title} by ${this.artist} (${this.year})`
+        };
     }
 }
 

@@ -57,12 +57,12 @@ td>span>input[type="checkbox"]:hover {
 }
 
 .input-error {
-    border-color: #dc3545 !important;
+    border-color: var(--bs-danger) !important;
     box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
 }
 
 .error-message {
-    color: #dc3545;
+    color: var(--bs-danger) !important;
     font-size: 0.875rem;
     min-height: 1.25rem;
     line-height: 1.25rem;
@@ -73,3 +73,28 @@ td>span>input[type="checkbox"]:hover {
 .error-message.active {
     visibility: visible;
 }
+
+.album-detail-trigger {
+    cursor: pointer;
+    transition: background-color 0.15s ease-in-out;
+}
+
+.album-detail-trigger:hover {
+    background-color: rgba(13, 110, 253, 0.1);
+}
+
+#album-view-mode p {
+    font-size: 0.95rem;
+    margin-bottom: 0;
+}
+
+#albumModal .modal-body {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.modal-album-cover {
+    max-width: 200px;
+    max-height: 200px;
+}
+
