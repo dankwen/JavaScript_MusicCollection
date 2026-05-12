@@ -51,9 +51,15 @@ if (collection.length < 12) {
         new CDAlbum("Welcome to the Pleasuredome", "Frankie Goes to Hollywood", 1984, "https://upload.wikimedia.org/wikipedia/en/0/0e/Welcome_To_The_Pleasuredome.jpg", true),
         new CDAlbum("Pop Goes The World", "Men Without Hats", 1987, "https://upload.wikimedia.org/wikipedia/en/a/a2/Men_Without_Hats-Pop_Goes_The_World.jpg", false),
         new CDAlbum("Delicate Sound of Thunder", "Pink Floyd", 1998, "https://upload.wikimedia.org/wikipedia/en/6/6b/Dsothunder-250.jpg", false),
+        new CDAlbum("Show", "The Cure", 1993, "https://upload.wikimedia.org/wikipedia/en/3/36/Show_%28Cure_album%29.jpg", false),
         new DigitalAlbum("Disintegration", "The Cure", 1989, "https://upload.wikimedia.org/wikipedia/en/b/b8/CureDisintegration.jpg", "Amazon"),
-        new DigitalAlbum("Find a Way Home", "MXPX", 2023, "https://upload.wikimedia.org/wikipedia/en/thumb/d/d6/Find_a_Way_Home.jpg/250px-Find_a_Way_Home.jpg", "Bandcamp"),
+        new DigitalAlbum("Find a Way Home", "MxPx", 2023, "https://upload.wikimedia.org/wikipedia/en/thumb/d/d6/Find_a_Way_Home.jpg/250px-Find_a_Way_Home.jpg", "Bandcamp"),
         new CDAlbum("Revolver", "The Beatles", 1966, "https://upload.wikimedia.org/wikipedia/en/thumb/e/ec/Revolver_%28album_cover%29.jpg/250px-Revolver_%28album_cover%29.jpg", false),
+        new CDAlbum("Let It Happen", "MxPx", 1998, "https://upload.wikimedia.org/wikipedia/en/thumb/f/f3/MxPx_-_Let_It_Happen_deluxe_edition_cover.jpg/250px-MxPx_-_Let_It_Happen_deluxe_edition_cover.jpg", false),
+        new CDAlbum("Kiss Me, Kiss Me, Kiss Me", "The Cure", 1987, "https://upload.wikimedia.org/wikipedia/en/f/f5/The_Cure_-_Kiss_Me%2C_Kiss_Me%2C_Kiss_Me.jpg", true),
+        new CDAlbum("Real, Real, Real", "Jesus Jones", 1990, "https://upload.wikimedia.org/wikipedia/en/8/82/Jesus_Jones_-_Real_Real_Real.jpg", false),
+        new CDAlbum("Peace and Love, Inc.", "Information Society", 1992, "https://upload.wikimedia.org/wikipedia/en/thumb/4/4a/Peace_and_Love_Inc.jpg/250px-Peace_and_Love_Inc.jpg", false),
+        new CDAlbum("Wither Blister Burn & Peel", "Stabbing Westward", 1996, "https://upload.wikimedia.org/wikipedia/en/f/f3/StabbingWestwardWither.jpg", false),
         new DigitalAlbum("LaTour", "LaTour", 1991, "https://upload.wikimedia.org/wikipedia/en/8/84/LaTouralbumcover.jpg", "Amazon"),
         new DigitalAlbum("Borders & Boundaries", "Less Than Jake", 2000, "https://upload.wikimedia.org/wikipedia/en/e/e2/LTJ-Borders-boundaries.jpg", "Bandcamp")
     ];
@@ -155,7 +161,7 @@ function weSorted(target, direction) {
 
 //#endregion ==================================================================================
 
-//#region New/Edit Album Form =================================================================
+//#region New Album Form ======================================================================
 
 // Toggle Conditional Form Fields -------------------------------------------------------------
 albumFormatEle.addEventListener('change', function (e) {
@@ -167,9 +173,8 @@ albumFormatEle.addEventListener('change', function (e) {
 });
 
 // Add New Item with Validation ---------------------------------------------------------------
-newAlbumFormEle.addEventListener('submit', function (e) {
-    e.preventDefault();
 
+function createAlbum() {
     // RegExp Validation (Requirement: Title/Artist must start with Letter, 1+ chars)
     const titleVal = document.getElementById('album-title').value;
     const artistVal = document.getElementById('album-artist').value;
@@ -177,28 +182,49 @@ newAlbumFormEle.addEventListener('submit', function (e) {
     const coverURLVal = document.getElementById('album-cover').value;
     const nameRegex = /^[A-Za-z0-9\s]{1,}$/;
 
-    if (!nameRegex.test(titleVal) || !nameRegex.test(artistVal)) {
-        alert("Please enter a valid Title and Artist (at least 1 character).");
-        return;
-    }
+    // if (!nameRegex.test(titleVal) || !nameRegex.test(artistVal)) {
+    //     alert("Please enter a valid Title and Artist (at least 1 character).");
+    //     return;
+    // }
+
+    // TODO: we require validation for other fields
+    // TODO: also note that digitalSourceVal may be blank in some cases ()
 
     let newAlbum;
 
-    if (formatSelect.value === "cd") {
-        newAlbum = new CDAlbum(titleVal, artistVal, yearVal, coverURLVal, document.getElementById('isRipped').checked);
+    if (albumFormatEle.value === "cd") {
+        newAlbum = new CDAlbum(titleVal, artistVal, yearVal, coverURLVal, false);
     } else {
         newAlbum = new DigitalAlbum(titleVal, artistVal, yearVal, coverURLVal, document.getElementById('source').value);
     }
 
     collection.push(newAlbum);
     saveCollection(collection);
-    this.reset();
+    newAlbumFormEle.reset();
     renderList();
+}
+
+
+// Album Form Listeners -----------------------------------------------------------------------
+newAlbumFormEle.addEventListener('submit', function (e) {
+    e.preventDefault();
+    createAlbum();
+});
+
+newAlbumFormEle.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        createAlbum();
+    }
+
+    if (e.key === 'Escape') {
+        this.reset();
+    }
 });
 
 //#endregion ==================================================================================
 
-//#region Table Body Actions ===================================================================
+//#region Table Body Actions ==================================================================
 
 document.getElementById('render-results').addEventListener('click', function (e) {
     const convertAlbum = e.target.closest('input[type="checkbox"]');

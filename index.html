@@ -33,40 +33,40 @@
         </div>
         <!-- Create Album Form -->
         <section class="card shadow-sm mb-4">
-            <div class="card-header bg-primary text-white">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
                 <h5>Add New Album</h5>
+                <small class="d-none d-md-block">Enter to Save | Esc to Clear</small>
             </div>
             <div class="card-body">
                 <form id="album-form" class="row g-3">
                     <div class="col-md-5">
                         <label class="form-label fw-bold">Title</label>
-                        <input type="text" id="album-title" class="form-control" required>
+                        <input type="text" id="album-title" class="form-control" aria-required="true">
                     </div>
                     <div class="col-md-5">
                         <label class="form-label fw-bold">Artist</label>
-                        <input type="text" id="album-artist" class="form-control" required>
+                        <input type="text" id="album-artist" class="form-control" aria-required="true">
                     </div>
                     <div class="col-md-2">
                         <label class="form-label fw-bold">Year</label>
-                        <input type="number" id="album-year" class="form-control" required>
+                        <input type="number" id="album-year" class="form-control" aria-required="true">
                     </div>
                     <div class="col-md-3">
                         <label class="form-label fw-bold">Format</label>
-                        <select id="album-format" class="form-select">
+                        <select id="album-format" class="form-select" aria-required="true">
                             <option value="cd">Compact Disc</option>
                             <option value="digital">Digital (MP3)</option>
                         </select>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-bold">Cover URL</label>
-                        <input type="url" id="album-cover" class="form-control" placeholder="https://...">
+                        <input type="url" id="album-cover" class="form-control" placeholder="https://..." aria-required="true">
                     </div>
                     <div id="album-source-hider" class="col-md-3 d-none">
                         <label class="form-label fw-bold">Source</label>
-                        <select id="album-source" class="form-select">
+                        <select id="album-source" class="form-select" aria-required="true">
                             <option value="Amazon">Amazon Music</option>
                             <option value="Bandcamp">Bandcamp</option>
-                            <option value="Converted">CD Conversion</option>
                             <option value="Other">Other</option>
                         </select>
                     </div>
